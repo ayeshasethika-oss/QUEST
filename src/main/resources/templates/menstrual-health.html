@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menstrual Health & Cycle Tracking - QUEST</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/dashboard" class="nav-brand"><span>🚀 QUEST</span></a>
+        <ul class="nav-links">
+            <li><a href="/dashboard" class="nav-link">Dashboard</a></li>
+            <li><a href="/career" class="nav-link">Career & Skills</a></li>
+            <li><a href="/safety-health" class="nav-link">Safety & Health</a></li>
+            <li><a href="/menstrual-health" class="nav-link active" style="color: #f472b6;">🌸 Menstrual Health</a></li>
+            <li><a href="/notifications" class="nav-link">🔔 Notifications</a></li>
+        </ul>
+        <div class="user-badge">
+            <img th:src="${user.profilePhoto.startsWith('http') || user.profilePhoto.startsWith('/') ? user.profilePhoto : 'https://api.dicebear.com/7.x/bottts/svg?seed=' + user.fullName}" class="user-avatar" alt="Avatar">
+            <div>
+                <div style="font-size: 13px; font-weight: 700;" th:text="${user.fullName}">Alex</div>
+                <div style="font-size: 11px; color: #94a3b8;" th:text="${user.questProfileId}">QUEST-10482</div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <div class="section-header">
+            <h1 class="section-title">🌸 Female Menstrual Health & Cycle Tracker</h1>
+            <p class="section-subtitle">Track your cycle, set hygiene reminders, and receive personal period care recommendations.</p>
+        </div>
+
+        <div class="grid-2" style="margin-bottom: 32px;">
+            <!-- Cycle Logger Form -->
+            <div class="glass-card">
+                <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 16px;">🩸 Log New Cycle Record</h2>
+                <form id="cycle-form">
+                    <div class="form-group">
+                        <label class="form-label">Period Start Date</label>
+                        <input type="date" id="startDate" class="form-control" required>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div class="form-group">
+                            <label class="form-label">Average Cycle Length (Days)</label>
+                            <input type="number" id="cycleLength" class="form-control" value="28" min="20" max="45" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Period Duration (Days)</label>
+                            <input type="number" id="periodDuration" class="form-control" value="5" min="2" max="10" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Symptoms & Notes</label>
+                        <input type="text" id="symptoms" class="form-control" placeholder="e.g. Mild cramps, fatigue, headache">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #db2777, #ec4899);">Save Cycle Log</button>
+                </form>
+            </div>
+
+            <!-- Cycle Insights & Predictions Card -->
+            <div class="glass-card">
+                <span class="badge badge-pink" style="margin-bottom: 10px;">Cycle Predictions</span>
+                <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 16px;">Upcoming Cycle Forecast</h2>
+
+                <div th:if="${insights.hasData}" style="background: rgba(219, 39, 119, 0.1); border: 1px solid rgba(219, 39, 119, 0.3); padding: 16px; border-radius: 12px; margin-bottom: 16px;">
+                    <div style="font-size: 13px; color: #f472b6; font-weight: 700;">ESTIMATED NEXT PERIOD</div>
+                    <div style="font-size: 22px; font-weight: 800; color: #fff; margin-top: 4px;" th:text="${insights.nextPredictedStart}">2026-10-10</div>
+                    <div style="font-size: 13px; color: #94a3b8; margin-top: 4px;">Approx. <strong th:text="${insights.daysUntilNext}" style="color: #db2777;">5</strong> days away</div>
+                </div>
+
+                <div th:unless="${insights.hasData}" style="padding: 20px; text-align: center; color: #94a3b8;">
+                    No cycle logs recorded yet. Use the logger on the left to start predictions.
+                </div>
+
+                <div style="background: rgba(15, 23, 42, 0.7); padding: 14px; border-radius: 8px; border: 1px solid var(--border-card);">
+                    <h4 style="font-size: 14px; font-weight: 700; color: var(--accent-pink); margin-bottom: 6px;">💧 Personal Hygiene Reminder</h4>
+                    <p style="font-size: 13px; color: #cbd5e1; line-height: 1.4;" th:text="${insights.hygieneTip}">Change products regularly.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cycle History -->
+        <div class="glass-card">
+            <h2 style="font-size: 18px; font-weight: 800; margin-bottom: 16px;">📜 Logged Cycle History</h2>
+            <div th:if="${#lists.isEmpty(records)}" style="color: #94a3b8; font-size: 13px;">No prior history recorded.</div>
+            <table th:unless="${#lists.isEmpty(records)}" style="width: 100%; border-collapse: collapse; font-size: 13px; text-align: left;">
+                <thead>
+                    <tr style="border-bottom: 1px solid var(--border-card); color: #64748b;">
+                        <th style="padding: 10px;">Start Date</th>
+                        <th style="padding: 10px;">Cycle Days</th>
+                        <th style="padding: 10px;">Duration</th>
+                        <th style="padding: 10px;">Symptoms</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="r : ${records}" style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <td style="padding: 10px; font-weight: 700;" th:text="${r.startDate}">Date</td>
+                        <td style="padding: 10px; color: #94a3b8;" th:text="${r.cycleLengthDays + ' Days'}">28 Days</td>
+                        <td style="padding: 10px; color: #94a3b8;" th:text="${r.periodDurationDays + ' Days'}">5 Days</td>
+                        <td style="padding: 10px; color: #f472b6;" th:text="${r.symptoms}">Symptoms</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+    <script>
+        document.getElementById('cycle-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const startDate = document.getElementById('startDate').value;
+            const cycleLength = document.getElementById('cycleLength').value;
+            const periodDuration = document.getElementById('periodDuration').value;
+            const symptoms = document.getElementById('symptoms').value;
+
+            const res = await apiRequest('/api/menstrual/records', 'POST', {
+                startDate, cycleLength, periodDuration, symptoms
+            });
+
+            if (res.success) {
+                location.reload();
+            } else {
+                alert(res.message);
+            }
+        });
+    </script>
+</body>
+</html>

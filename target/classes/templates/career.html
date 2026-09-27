@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Career Analysis & Roadmap - QUEST</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/dashboard" class="nav-brand"><span>🚀 QUEST</span></a>
+        <ul class="nav-links">
+            <li><a href="/dashboard" class="nav-link">Dashboard</a></li>
+            <li><a href="/career" class="nav-link active">Career & Skills</a></li>
+            <li><a href="/opportunities" class="nav-link">Opportunities</a></li>
+            <li><a href="/interview" class="nav-link">AI Mock Interview</a></li>
+            <li><a href="/safety-health" class="nav-link">Safety & Health</a></li>
+            <li th:if="${user.gender == 'Female'}"><a href="/menstrual-health" class="nav-link" style="color: #f472b6;">🌸 Menstrual Health</a></li>
+            <li><a href="/notifications" class="nav-link">🔔 Notifications</a></li>
+        </ul>
+        <div class="user-badge">
+            <img th:src="${user.profilePhoto.startsWith('http') || user.profilePhoto.startsWith('/') ? user.profilePhoto : 'https://api.dicebear.com/7.x/bottts/svg?seed=' + user.fullName}" class="user-avatar" alt="Avatar">
+            <div>
+                <div style="font-size: 13px; font-weight: 700;" th:text="${user.fullName}">Alex</div>
+                <div style="font-size: 11px; color: #94a3b8;" th:text="${user.questProfileId}">QUEST-10482</div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <div class="section-header">
+            <h1 class="section-title">📊 Career Analysis & Skill Gap Insights</h1>
+            <p class="section-subtitle">Real-time breakdown of your career suitability, skill gaps, and custom step-by-step roadmap.</p>
+        </div>
+
+        <div class="grid-2" style="margin-bottom: 32px;">
+            <!-- Career Suitability Card -->
+            <div class="glass-card">
+                <span class="badge badge-pink" style="margin-bottom: 12px;">Role Compatibility</span>
+                <h2 style="font-size: 22px; font-weight: 800; margin-top: 6px;" id="target-goal">Target Goal</h2>
+                <div style="margin: 20px 0;">
+                    <div style="display: flex; justify-content: space-between; font-size: 14px; font-weight: 700; margin-bottom: 6px;">
+                        <span>Suitability Match Score</span>
+                        <span id="score-text" style="color: var(--accent-pink);">85%</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div id="score-bar" class="progress-bar-fill" style="width: 85%;"></div>
+                    </div>
+                </div>
+                <p style="font-size: 13px; color: #94a3b8; line-height: 1.5;" id="analysis-summary">
+                    Analyzing active skills against industry benchmark standards.
+                </p>
+                <div style="margin-top: 20px;">
+                    <a href="/skills" class="btn btn-primary" style="width: 100%;">📚 Learn Priority Skills</a>
+                </div>
+            </div>
+
+            <!-- Skill Gap Breakdown Card -->
+            <div class="glass-card">
+                <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 16px;">⚠️ Identified Skill Gaps</h3>
+                <p style="font-size: 13px; color: #94a3b8; margin-bottom: 16px;">To achieve your career goal, we recommend acquiring and proving proficiency in these key skills:</p>
+                
+                <div id="missing-skills-tags" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px;">
+                    <!-- Tags rendered via JS -->
+                </div>
+
+                <div style="background: rgba(255, 255, 255, 0.03); padding: 14px; border-radius: 8px; border: 1px solid var(--border-card);">
+                    <div style="font-size: 12px; color: #64748b; font-weight: 700;">ACTIVE SKILLS DETECTED</div>
+                    <div id="current-skills-tags" style="font-size: 14px; font-weight: 600; color: #34d399; margin-top: 4px;">Java, SQL</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Career Roadmap Section -->
+        <div class="glass-card">
+            <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 20px;">🛣️ Personalized Step-by-Step Career Roadmap</h2>
+            <div id="roadmap-container" style="display: flex; flex-direction: column; gap: 16px;">
+                <!-- Roadmap rendered via JS -->
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+    <script>
+        async function loadCareerAnalysis() {
+            const res = await apiRequest('/api/career/recommendations');
+            if (res.success) {
+                const data = res.data;
+                document.getElementById('target-goal').innerText = data.careerGoal;
+                document.getElementById('score-text').innerText = data.suitabilityScore + '%';
+                document.getElementById('score-bar').style.width = data.suitabilityScore + '%';
+                
+                // Missing Skills Tags
+                const missingContainer = document.getElementById('missing-skills-tags');
+                missingContainer.innerHTML = '';
+                if (data.missingSkills && data.missingSkills.length > 0) {
+                    data.missingSkills.forEach(skill => {
+                        missingContainer.innerHTML += `<span class="badge badge-pink" style="font-size: 12px; padding: 6px 12px;">+ ${skill}</span>`;
+                    });
+                } else {
+                    missingContainer.innerHTML = '<span style="color: #34d399; font-size: 13px;">No critical skill gaps identified! You are job ready.</span>';
+                }
+
+                document.getElementById('current-skills-tags').innerText = data.currentSkills.join(', ') || 'None specified';
+
+                // Roadmap Steps
+                const roadmapContainer = document.getElementById('roadmap-container');
+                roadmapContainer.innerHTML = '';
+                data.roadmap.forEach(step => {
+                    roadmapContainer.innerHTML += `
+                        <div style="display: flex; gap: 16px; align-items: flex-start; background: rgba(15, 23, 42, 0.6); padding: 16px; border-radius: 12px; border: 1px solid var(--border-card);">
+                            <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #db2777, #6366f1); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; flex-shrink: 0;">
+                                ${step.step}
+                            </div>
+                            <div>
+                                <h4 style="font-size: 16px; font-weight: 700; color: #fff;">${step.title}</h4>
+                                <p style="font-size: 13px; color: #94a3b8; margin-top: 4px;">${step.desc}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+        }
+        loadCareerAnalysis();
+    </script>
+</body>
+</html>

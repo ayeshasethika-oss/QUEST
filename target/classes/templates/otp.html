@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo OTP Verification - QUEST</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px;">
+        <div class="glass-card" style="width: 100%; max-width: 440px; text-align: center;">
+            <h1 style="font-size: 26px; font-weight: 800; margin-bottom: 8px;">📱 Security Verification</h1>
+            <p style="color: #94a3b8; font-size: 14px; margin-bottom: 20px;">Enter the 6-digit verification OTP sent to your phone/email.</p>
+
+            <div style="background: rgba(99, 102, 241, 0.15); border: 1px border var(--accent-indigo); padding: 12px; border-radius: 8px; margin-bottom: 20px;">
+                <span style="font-size: 13px; color: #a5b4fc;">Development Demo OTP: </span>
+                <strong style="font-size: 18px; color: #fff; letter-spacing: 2px;">123456</strong>
+            </div>
+
+            <div id="alert-box" style="display:none; padding: 10px; margin-bottom: 16px; border-radius: 8px; font-size: 13px; background: rgba(239, 68, 68, 0.2); color: #f87171;"></div>
+
+            <form id="otp-form">
+                <div class="form-group">
+                    <input type="text" id="otp" class="form-control" placeholder="123456" maxlength="6" style="text-align: center; font-size: 22px; letter-spacing: 4px; font-weight: 800;" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px;">Verify & Complete Profile</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+    <script>
+        document.getElementById('otp-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const otp = document.getElementById('otp').value;
+            const res = await apiRequest('/api/auth/verify-otp', 'POST', { otp });
+            if (res.success) {
+                window.location.href = '/complete-profile';
+            } else {
+                showAlert(res.message, 'danger');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Analysis - QUEST</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/dashboard" class="nav-brand"><span>🚀 QUEST</span></a>
+        <ul class="nav-links">
+            <li><a href="/dashboard" class="nav-link">Dashboard</a></li>
+            <li><a href="/career" class="nav-link">Career & Skills</a></li>
+            <li><a href="/resume" class="nav-link active">Resume Analysis</a></li>
+            <li><a href="/interview" class="nav-link">AI Mock Interview</a></li>
+        </ul>
+        <div class="user-badge">
+            <img th:src="${user.profilePhoto.startsWith('http') || user.profilePhoto.startsWith('/') ? user.profilePhoto : 'https://api.dicebear.com/7.x/bottts/svg?seed=' + user.fullName}" class="user-avatar" alt="Avatar">
+            <div>
+                <div style="font-size: 13px; font-weight: 700;" th:text="${user.fullName}">Alex</div>
+                <div style="font-size: 11px; color: #94a3b8;" th:text="${user.questProfileId}">QUEST-10482</div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <div class="section-header">
+            <h1 class="section-title">📄 ATS Resume Upload & AI Analysis</h1>
+            <p class="section-subtitle">Upload your PDF or DOCX resume to get an instant ATS score breakdown, keyword evaluation, and career compatibility report.</p>
+        </div>
+
+        <div class="grid-2">
+            <!-- Upload Container -->
+            <div class="glass-card">
+                <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 16px;">📤 Upload Resume</h3>
+                <form id="resume-upload-form" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label class="form-label">Select PDF or DOCX Resume File</label>
+                        <input type="file" id="resumeFile" class="form-control" accept=".pdf,.docx" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px;">Upload & Analyze Resume</button>
+                </form>
+
+                <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border-card); text-align: center;">
+                    <p style="font-size: 13px; color: #94a3b8;">Don't have a file ready?</p>
+                    <button onclick="analyzeFromProfile()" class="btn btn-secondary" style="margin-top: 8px; width: 100%;">Analyze Using My QUEST Profile Data</button>
+                </div>
+            </div>
+
+            <!-- Score & Breakdown Container -->
+            <div class="glass-card" id="result-card">
+                <span class="badge badge-pink" id="compat-badge">Compatibility Check</span>
+                <h2 style="font-size: 22px; font-weight: 800; margin-top: 8px;" id="compat-text">ATS Resume Score</h2>
+
+                <div style="margin: 20px 0;">
+                    <div style="display: flex; justify-content: space-between; font-weight: 700; font-size: 14px; margin-bottom: 6px;">
+                        <span>Overall ATS Score</span>
+                        <span id="score-text" style="color: var(--accent-pink);">-- %</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div id="score-bar" class="progress-bar-fill" style="width: 0%;"></div>
+                    </div>
+                </div>
+
+                <div style="background: rgba(15, 23, 42, 0.7); padding: 16px; border-radius: 8px; border: 1px solid var(--border-card); margin-bottom: 16px;">
+                    <div style="font-size: 12px; color: #64748b; font-weight: 700;">DETECTED SKILLS</div>
+                    <div id="detected-skills" style="font-size: 13px; color: #34d399; font-weight: 600; margin-top: 4px;">Loading...</div>
+                </div>
+
+                <div style="background: rgba(15, 23, 42, 0.7); padding: 16px; border-radius: 8px; border: 1px solid var(--border-card); margin-bottom: 16px;">
+                    <div style="font-size: 12px; color: #64748b; font-weight: 700;">RECOMMENDED MISSING KEYWORDS</div>
+                    <div id="missing-skills" style="font-size: 13px; color: #f472b6; font-weight: 600; margin-top: 4px;">Loading...</div>
+                </div>
+
+                <div style="font-size: 13px; color: #cbd5e1; line-height: 1.5; white-space: pre-line;" id="strengths-suggestions">
+                    Upload your resume file above to view complete analysis feedback.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+    <script>
+        document.getElementById('resume-upload-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fileInput = document.getElementById('resumeFile');
+            if (!fileInput.files[0]) return;
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            try {
+                const res = await fetch('/api/resume/upload', {
+                    method: 'POST',
+                    body: formData
+                }).then(r => r.json());
+
+                if (res.success) {
+                    renderAnalysis(res.data);
+                } else {
+                    alert(res.message);
+                }
+            } catch (err) {
+                alert('File upload failed.');
+            }
+        });
+
+        async function analyzeFromProfile() {
+            const res = await apiRequest('/api/resume/analyze', 'POST');
+            if (res.success) {
+                renderAnalysis(res.data);
+            }
+        }
+
+        async function loadLatestAnalysis() {
+            const res = await apiRequest('/api/resume');
+            if (res.success && res.data) {
+                renderAnalysis(res.data);
+            }
+        }
+
+        function renderAnalysis(data) {
+            document.getElementById('compat-text').innerText = data.careerCompatibility || 'ATS Resume Analysis';
+            document.getElementById('score-text').innerText = data.overallScore + '%';
+            document.getElementById('score-bar').style.width = data.overallScore + '%';
+            document.getElementById('detected-skills').innerText = data.detectedSkills || 'None detected';
+            document.getElementById('missing-skills').innerText = data.missingSkills || 'None missing';
+            document.getElementById('strengths-suggestions').innerText = (data.strengths || '') + '\n\n' + (data.improvementSuggestions || '');
+        }
+
+        loadLatestAnalysis();
+    </script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - QUEST</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px;">
+        <div class="glass-card" style="width: 100%; max-width: 440px;">
+            <div style="text-align: center; margin-bottom: 24px;">
+                <span class="badge badge-pink" style="margin-bottom: 8px;">Restricted Access</span>
+                <h1 style="font-size: 28px; font-weight: 900;">🛡️ QUEST Admin Portal</h1>
+                <p style="color: #94a3b8; font-size: 14px; margin-top: 4px;">System Management & Governance</p>
+            </div>
+
+            <div id="alert-box" style="display:none; padding: 10px; margin-bottom: 16px; border-radius: 8px; font-size: 13px; text-align: center; background: rgba(239, 68, 68, 0.2); color: #f87171;"></div>
+
+            <form id="admin-login-form">
+                <div class="form-group">
+                    <label class="form-label">Admin Username</label>
+                    <input type="text" id="username" class="form-control" placeholder="admin" value="admin" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" id="password" class="form-control" placeholder="admin123" value="admin123" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; margin-top: 10px;">Authenticate Admin</button>
+            </form>
+
+            <div style="margin-top: 20px; text-align: center; font-size: 13px;">
+                <a href="/login" style="color: #94a3b8; text-decoration: none;">&larr; Return to User Login</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+    <script>
+        document.getElementById('admin-login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            const res = await apiRequest('/api/admin/login', 'POST', { username, password });
+            if (res.success) {
+                window.location.href = '/admin/dashboard';
+            } else {
+                showAlert(res.message, 'danger');
+            }
+        });
+    </script>
+</body>
+</html>

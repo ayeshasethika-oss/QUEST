@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Opportunity Details - QUEST</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/dashboard" class="nav-brand"><span>🚀 QUEST</span></a>
+        <ul class="nav-links">
+            <li><a href="/dashboard" class="nav-link">Dashboard</a></li>
+            <li><a href="/opportunities" class="nav-link active">Opportunities</a></li>
+            <li><a href="/applications" class="nav-link">My Applications</a></li>
+        </ul>
+        <div class="user-badge">
+            <img th:src="${user.profilePhoto.startsWith('http') || user.profilePhoto.startsWith('/') ? user.profilePhoto : 'https://api.dicebear.com/7.x/bottts/svg?seed=' + user.fullName}" class="user-avatar" alt="Avatar">
+            <div>
+                <div style="font-size: 13px; font-weight: 700;" th:text="${user.fullName}">Alex</div>
+                <div style="font-size: 11px; color: #94a3b8;" th:text="${user.questProfileId}">QUEST-10482</div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <div style="margin-bottom: 20px;">
+            <a href="/opportunities" style="color: #94a3b8; text-decoration: none; font-size: 14px;">&larr; Back to Opportunities</a>
+        </div>
+
+        <div class="glass-card" style="max-width: 800px; margin: 0 auto;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                <span class="badge badge-pink" th:text="${opp.category}">Category</span>
+                <span class="badge badge-indigo" th:text="${opp.mode}">Mode</span>
+            </div>
+
+            <h1 style="font-size: 28px; font-weight: 800; margin-bottom: 6px;" th:text="${opp.title}">Title</h1>
+            <div style="font-size: 16px; color: #6366f1; font-weight: 700; margin-bottom: 20px;" th:text="${opp.organization}">Organization</div>
+
+            <div style="background: rgba(15, 23, 42, 0.8); padding: 20px; border-radius: 12px; border: 1px solid var(--border-card); margin-bottom: 24px;">
+                <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 10px;">📋 Description & Requirements</h3>
+                <p style="font-size: 14px; color: #cbd5e1; line-height: 1.6;" th:text="${opp.description}">Description body...</p>
+
+                <hr style="border: 0; border-top: 1px solid var(--border-card); margin: 16px 0;">
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; font-size: 13px;">
+                    <div><strong>Eligibility:</strong> <span th:text="${opp.eligibility}" style="color: #94a3b8;">Eligible</span></div>
+                    <div><strong>Required Skills:</strong> <span th:text="${opp.requiredSkills}" style="color: #94a3b8;">Skills</span></div>
+                    <div><strong>Location:</strong> <span th:text="${opp.location}" style="color: #94a3b8;">Location</span></div>
+                    <div><strong>Application Deadline:</strong> <span th:text="${opp.deadline}" style="color: #f472b6;">Deadline</span></div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 16px;">
+                <button th:onclick="'applyOpportunity(' + ${opp.id} + ', this)'" class="btn btn-primary" style="flex: 1; padding: 14px; font-size: 16px;">Submit Application Now</button>
+                <button th:onclick="'toggleSaveOpportunity(' + ${opp.id} + ', this)'" class="btn btn-secondary" style="padding: 14px 24px;">☆ Save Opportunity</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skill Learning & Career Restart - QUEST</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/dashboard" class="nav-brand"><span>🚀 QUEST</span></a>
+        <ul class="nav-links">
+            <li><a href="/dashboard" class="nav-link">Dashboard</a></li>
+            <li><a href="/career" class="nav-link active">Career & Skills</a></li>
+            <li><a href="/opportunities" class="nav-link">Opportunities</a></li>
+            <li><a href="/interview" class="nav-link">AI Mock Interview</a></li>
+            <li><a href="/safety-health" class="nav-link">Safety & Health</a></li>
+            <li th:if="${user.gender == 'Female'}"><a href="/menstrual-health" class="nav-link" style="color: #f472b6;">🌸 Menstrual Health</a></li>
+            <li><a href="/notifications" class="nav-link">🔔 Notifications</a></li>
+        </ul>
+        <div class="user-badge">
+            <img th:src="${user.profilePhoto.startsWith('http') || user.profilePhoto.startsWith('/') ? user.profilePhoto : 'https://api.dicebear.com/7.x/bottts/svg?seed=' + user.fullName}" class="user-avatar" alt="Avatar">
+            <div>
+                <div style="font-size: 13px; font-weight: 700;" th:text="${user.fullName}">Alex</div>
+                <div style="font-size: 11px; color: #94a3b8;" th:text="${user.questProfileId}">QUEST-10482</div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <div class="section-header">
+            <h1 class="section-title">📚 Skill Learning & Career Restart Hub</h1>
+            <p class="section-subtitle">Acquire high-demand technical and soft skills, or reboot your career after a break.</p>
+        </div>
+
+        <!-- Career Restart Banner (Available to BOTH male & female users) -->
+        <div class="glass-card" style="margin-bottom: 32px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(219, 39, 119, 0.2)); border: 1px solid var(--accent-indigo);">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+                <div>
+                    <span class="badge badge-indigo">🔄 Career Restart Program</span>
+                    <h2 style="font-size: 22px; font-weight: 800; margin-top: 6px;">Returning to Work After a Break?</h2>
+                    <p style="font-size: 14px; color: #cbd5e1; margin-top: 4px;">
+                        Access custom refresher learning, resume rebuilding, and job-readiness assessments designed for career returners.
+                    </p>
+                </div>
+                <a href="/courses" class="btn btn-primary">Browse Refresher Courses</a>
+            </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="font-size: 20px; font-weight: 800;">Recommended Learning Paths</h2>
+            <a href="/courses" class="btn btn-secondary">Explore All Courses &rarr;</a>
+        </div>
+
+        <div class="grid-3">
+            <div class="glass-card">
+                <span class="badge badge-pink">Data & Analytics</span>
+                <h3 style="font-size: 18px; font-weight: 700; margin-top: 8px; margin-bottom: 8px;">Python & SQL Mastery</h3>
+                <p style="font-size: 13px; color: #94a3b8; margin-bottom: 16px;">Master data cleaning, query optimization, and automated insights building.</p>
+                <a href="/courses" class="btn btn-primary" style="width: 100%;">Start Path</a>
+            </div>
+
+            <div class="glass-card">
+                <span class="badge badge-indigo">Software Engineering</span>
+                <h3 style="font-size: 18px; font-weight: 700; margin-top: 8px; margin-bottom: 8px;">Java & Spring Boot Architecture</h3>
+                <p style="font-size: 13px; color: #94a3b8; margin-bottom: 16px;">Build production-ready REST APIs, microservices, and database persistence layers.</p>
+                <a href="/courses" class="btn btn-primary" style="width: 100%;">Start Path</a>
+            </div>
+
+            <div class="glass-card">
+                <span class="badge badge-green">Career Readiness</span>
+                <h3 style="font-size: 18px; font-weight: 700; margin-top: 8px; margin-bottom: 8px;">Resume & Mock Interview Coaching</h3>
+                <p style="font-size: 13px; color: #94a3b8; margin-bottom: 16px;">Structure STAR responses, optimize your resume for ATS systems, and gain confidence.</p>
+                <a href="/courses" class="btn btn-primary" style="width: 100%;">Start Path</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+</body>
+</html>

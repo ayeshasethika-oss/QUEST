@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Monitoring - QUEST Admin</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/admin/dashboard" class="nav-brand"><span>🛡️ QUEST Admin</span></a>
+        <ul class="nav-links">
+            <li><a href="/admin/dashboard" class="nav-link">Dashboard</a></li>
+            <li><a href="/admin/users" class="nav-link">Users</a></li>
+            <li><a href="/admin/opportunities" class="nav-link">Opportunities</a></li>
+            <li><a href="/admin/courses" class="nav-link">Courses</a></li>
+            <li><a href="/admin/applications" class="nav-link active">Applications</a></li>
+            <li><a href="/admin/analytics" class="nav-link">Analytics</a></li>
+        </ul>
+        <a href="/login" class="btn btn-secondary" style="padding: 4px 12px; font-size: 12px;">Exit Admin</a>
+    </nav>
+
+    <div class="main-container">
+        <div class="section-header">
+            <h1 class="section-title">📋 Application Monitoring</h1>
+            <p class="section-subtitle">Real-time tracker of candidate job applications submitted across opportunities.</p>
+        </div>
+
+        <div class="glass-card">
+            <table style="width: 100%; border-collapse: collapse; font-size: 13px; text-align: left;">
+                <thead>
+                    <tr style="border-bottom: 1px solid var(--border-card); color: #64748b;">
+                        <th style="padding: 10px;">Application ID</th>
+                        <th style="padding: 10px;">Opportunity Title</th>
+                        <th style="padding: 10px;">Organization</th>
+                        <th style="padding: 10px;">User ID</th>
+                        <th style="padding: 10px;">Applied Date</th>
+                        <th style="padding: 10px;">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="app-tbody">
+                    <!-- Rendered via JS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+    <script>
+        async function loadApplications() {
+            const res = await apiRequest('/api/admin/applications');
+            if (res.success) {
+                const tbody = document.getElementById('app-tbody');
+                tbody.innerHTML = '';
+                res.data.forEach(a => {
+                    tbody.innerHTML += `
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                            <td style="padding: 12px; font-weight: 700; color: #6366f1;">APP-${a.id}</td>
+                            <td style="padding: 12px; font-weight: 700; color: #fff;">${a.opportunityTitle}</td>
+                            <td style="padding: 12px; color: #cbd5e1;">${a.organization}</td>
+                            <td style="padding: 12px; color: #cbd5e1;">USER-${a.userId}</td>
+                            <td style="padding: 12px; color: #94a3b8;">${a.applicationDate}</td>
+                            <td style="padding: 12px;"><span class="badge badge-pink">${a.status}</span></td>
+                        </tr>
+                    `;
+                });
+            }
+        }
+        loadApplications();
+    </script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics & Reports - QUEST Admin</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/admin/dashboard" class="nav-brand"><span>🛡️ QUEST Admin</span></a>
+        <ul class="nav-links">
+            <li><a href="/admin/dashboard" class="nav-link">Dashboard</a></li>
+            <li><a href="/admin/users" class="nav-link">Users</a></li>
+            <li><a href="/admin/opportunities" class="nav-link">Opportunities</a></li>
+            <li><a href="/admin/courses" class="nav-link">Courses</a></li>
+            <li><a href="/admin/applications" class="nav-link">Applications</a></li>
+            <li><a href="/admin/analytics" class="nav-link active">Analytics</a></li>
+        </ul>
+        <a href="/login" class="btn btn-secondary" style="padding: 4px 12px; font-size: 12px;">Exit Admin</a>
+    </nav>
+
+    <div class="main-container">
+        <div class="section-header">
+            <h1 class="section-title">📈 System Analytics & Gender Metrics</h1>
+            <p class="section-subtitle">Detailed statistics on user representation, skill demand, and platform activity.</p>
+        </div>
+
+        <div class="grid-2">
+            <!-- Gender Representation -->
+            <div class="glass-card">
+                <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 16px;">👨👩 Gender Distribution</h3>
+                <div style="display: flex; gap: 20px; align-items: center;">
+                    <div style="flex: 1; background: rgba(99, 102, 241, 0.15); padding: 20px; border-radius: 12px; text-align: center; border: 1px solid rgba(99, 102, 241, 0.3);">
+                        <div style="font-size: 12px; color: #a5b4fc; font-weight: 700;">MALE USERS</div>
+                        <div style="font-size: 28px; font-weight: 900; color: #fff; margin-top: 4px;" id="val-male">0</div>
+                    </div>
+                    <div style="flex: 1; background: rgba(219, 39, 119, 0.15); padding: 20px; border-radius: 12px; text-align: center; border: 1px solid rgba(219, 39, 119, 0.3);">
+                        <div style="font-size: 12px; color: #f472b6; font-weight: 700;">FEMALE USERS</div>
+                        <div style="font-size: 28px; font-weight: 900; color: #fff; margin-top: 4px;" id="val-female">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Learning & Certificates Performance -->
+            <div class="glass-card">
+                <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 16px;">🏆 Platform Milestones</h3>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <div style="display: flex; justify-content: space-between; padding: 12px; background: rgba(15, 23, 42, 0.6); border-radius: 8px;">
+                        <span>Verifiable Certificates Issued</span>
+                        <strong style="color: #34d399;" id="val-certs">0</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 12px; background: rgba(15, 23, 42, 0.6); border-radius: 8px;">
+                        <span>Total Job Applications Tracked</span>
+                        <strong style="color: #db2777;" id="val-apps">0</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 12px; background: rgba(15, 23, 42, 0.6); border-radius: 8px;">
+                        <span>AI Mock Interviews Conducted</span>
+                        <strong style="color: #6366f1;" id="val-interviews">0</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+    <script>
+        async function loadAnalytics() {
+            const res = await apiRequest('/api/admin/analytics');
+            if (res.success) {
+                const data = res.data;
+                document.getElementById('val-male').innerText = data.maleUsers;
+                document.getElementById('val-female').innerText = data.femaleUsers;
+                document.getElementById('val-certs').innerText = data.totalCertificates;
+                document.getElementById('val-apps').innerText = data.totalApplications;
+                document.getElementById('val-interviews').innerText = data.totalInterviews;
+            }
+        }
+        loadAnalytics();
+    </script>
+</body>
+</html>

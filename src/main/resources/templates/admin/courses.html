@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Management - QUEST Admin</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/admin/dashboard" class="nav-brand"><span>🛡️ QUEST Admin</span></a>
+        <ul class="nav-links">
+            <li><a href="/admin/dashboard" class="nav-link">Dashboard</a></li>
+            <li><a href="/admin/users" class="nav-link">Users</a></li>
+            <li><a href="/admin/opportunities" class="nav-link">Opportunities</a></li>
+            <li><a href="/admin/courses" class="nav-link active">Courses</a></li>
+            <li><a href="/admin/applications" class="nav-link">Applications</a></li>
+            <li><a href="/admin/analytics" class="nav-link">Analytics</a></li>
+        </ul>
+        <a href="/login" class="btn btn-secondary" style="padding: 4px 12px; font-size: 12px;">Exit Admin</a>
+    </nav>
+
+    <div class="main-container">
+        <div class="section-header">
+            <h1 class="section-title">📚 Course Management</h1>
+            <p class="section-subtitle">Create and manage skill learning courses and verification assessments.</p>
+        </div>
+
+        <div class="grid-2">
+            <!-- Create Course -->
+            <div class="glass-card">
+                <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 16px;">➕ Create New Course</h3>
+                <form id="create-course-form">
+                    <div class="form-group">
+                        <label class="form-label">Course Title</label>
+                        <input type="text" id="cTitle" class="form-control" required placeholder="Advanced Microservices Architecture">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div class="form-group">
+                            <label class="form-label">Category</label>
+                            <input type="text" id="cCategory" class="form-control" required placeholder="Cloud Engineering">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Level</label>
+                            <select id="cLevel" class="form-control" required>
+                                <option value="Beginner">Beginner</option>
+                                <option value="Intermediate">Intermediate</option>
+                                <option value="Advanced">Advanced</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <textarea id="cDescription" class="form-control" rows="3" required placeholder="Overview of learning outcomes..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px;">Save Course to Database</button>
+                </form>
+            </div>
+
+            <!-- Existing Courses -->
+            <div class="glass-card">
+                <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 16px;">📜 Active Skill Courses</h3>
+                <div id="courses-list" style="display: flex; flex-direction: column; gap: 12px; max-height: 450px; overflow-y: auto;">
+                    <!-- Rendered via JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+    <script>
+        async function loadAdminCourses() {
+            const res = await apiRequest('/api/courses');
+            if (res.success) {
+                const list = document.getElementById('courses-list');
+                list.innerHTML = '';
+                res.data.forEach(c => {
+                    list.innerHTML += `
+                        <div style="background: rgba(15, 23, 42, 0.7); padding: 12px; border-radius: 8px; border: 1px solid var(--border-card); display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong style="font-size: 14px; color: #fff;">${c.title}</strong>
+                                <span class="badge badge-indigo">${c.category}</span>
+                            </div>
+                            <button onclick="deleteCourse(${c.id})" class="btn btn-danger" style="padding: 4px 8px; font-size: 11px;">Delete</button>
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        document.getElementById('create-course-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const title = document.getElementById('cTitle').value;
+            const category = document.getElementById('cCategory').value;
+            const level = document.getElementById('cLevel').value;
+            const description = document.getElementById('cDescription').value;
+
+            const res = await apiRequest('/api/admin/courses', 'POST', {
+                title, category, level, description, duration: '4 Hours', instructor: 'QUEST Instructor', imageUrl: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600'
+            });
+
+            if (res.success) {
+                alert('Course created in MySQL!');
+                loadAdminCourses();
+            }
+        });
+
+        async function deleteCourse(id) {
+            if (confirm('Delete course?')) {
+                await apiRequest(`/api/admin/courses/${id}`, 'DELETE');
+                loadAdminCourses();
+            }
+        }
+
+        loadAdminCourses();
+    </script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - QUEST | Your Journey Toward a Goal</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px;">
+        <div class="glass-card" style="width: 100%; max-width: 440px;">
+            <div style="text-align: center; margin-bottom: 28px;">
+                <h1 style="font-size: 32px; font-weight: 900; background: linear-gradient(135deg, #db2777, #6366f1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">🚀 QUEST</h1>
+                <p style="color: #94a3b8; font-size: 14px; margin-top: 4px;">Your Journey Toward a Goal</p>
+            </div>
+
+            <div id="alert-box" style="display:none; padding: 10px; margin-bottom: 16px; border-radius: 8px; font-size: 13px; text-align: center; background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3);"></div>
+
+            <form id="login-form">
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" id="email" class="form-control" placeholder="user@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" id="password" class="form-control" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; margin-top: 10px;">Login to QUEST</button>
+            </form>
+
+            <div style="margin-top: 24px; text-align: center; font-size: 13px; color: #94a3b8;">
+                Don't have an account? <a href="/register" style="color: #db2777; font-weight: 700; text-decoration: none;">Create Account</a>
+            </div>
+            <div style="margin-top: 12px; text-align: center; font-size: 13px; color: #64748b;">
+                <a href="/admin/login" style="color: #818cf8; text-decoration: none;">Admin Portal Login</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+    <script>
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            const res = await apiRequest('/api/auth/login', 'POST', { email, password });
+            if (res.success) {
+                window.location.href = '/dashboard';
+            } else {
+                showAlert(res.message, 'danger');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Opportunities - QUEST</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/dashboard" class="nav-brand"><span>🚀 QUEST</span></a>
+        <ul class="nav-links">
+            <li><a href="/dashboard" class="nav-link">Dashboard</a></li>
+            <li><a href="/career" class="nav-link">Career & Skills</a></li>
+            <li><a href="/opportunities" class="nav-link active">Opportunities</a></li>
+            <li><a href="/interview" class="nav-link">AI Mock Interview</a></li>
+            <li><a href="/safety-health" class="nav-link">Safety & Health</a></li>
+            <li th:if="${user.gender == 'Female'}"><a href="/menstrual-health" class="nav-link" style="color: #f472b6;">🌸 Menstrual Health</a></li>
+            <li><a href="/notifications" class="nav-link">🔔 Notifications</a></li>
+        </ul>
+        <div class="user-badge">
+            <img th:src="${user.profilePhoto.startsWith('http') || user.profilePhoto.startsWith('/') ? user.profilePhoto : 'https://api.dicebear.com/7.x/bottts/svg?seed=' + user.fullName}" class="user-avatar" alt="Avatar">
+            <div>
+                <div style="font-size: 13px; font-weight: 700;" th:text="${user.fullName}">Alex</div>
+                <div style="font-size: 11px; color: #94a3b8;" th:text="${user.questProfileId}">QUEST-10482</div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <div class="section-header">
+            <h1 class="section-title">🎯 Career Opportunities & Growth Programs</h1>
+            <p class="section-subtitle">Discover tailored Jobs, Internships, Hackathons, Scholarships, and Recruitment Drives.</p>
+        </div>
+
+        <!-- Filter Controls -->
+        <div class="glass-card" style="margin-bottom: 28px; padding: 16px;">
+            <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 16px;">
+                <input type="text" id="search-input" class="form-control" placeholder="Search by title, organization, or skills...">
+                <select id="category-select" class="form-control">
+                    <option value="">All Categories</option>
+                    <option value="Job">Jobs</option>
+                    <option value="Internship">Internships</option>
+                    <option value="Competition">Competitions</option>
+                    <option value="Scholarship">Scholarships</option>
+                    <option value="Recruitment Drive">Recruitment Drives</option>
+                    <option value="Training Program">Training Programs</option>
+                </select>
+                <select id="mode-select" class="form-control">
+                    <option value="">All Work Modes</option>
+                    <option value="Remote">Remote</option>
+                    <option value="Hybrid">Hybrid</option>
+                    <option value="On-site">On-site</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <div class="glass-card opportunity-card" th:each="opp : ${opportunities}" th:data-category="${opp.category}" th:data-mode="${opp.mode}">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                    <span class="badge badge-pink" th:text="${opp.category}">Job</span>
+                    <span class="badge badge-indigo" th:text="${opp.mode}">Remote</span>
+                </div>
+
+                <h3 style="font-size: 20px; font-weight: 800; margin-bottom: 4px;" th:text="${opp.title}">Opportunity Title</h3>
+                <div style="font-size: 14px; color: #6366f1; font-weight: 700; margin-bottom: 12px;" th:text="${opp.organization}">Organization</div>
+                
+                <p style="font-size: 13px; color: #94a3b8; line-height: 1.4; margin-bottom: 16px;" th:text="${opp.description}">Description</p>
+
+                <div style="font-size: 12px; color: #64748b; margin-bottom: 16px;">
+                    <div>📍 Location: <span th:text="${opp.location}" style="color: #cbd5e1;">Remote</span></div>
+                    <div>🛠️ Skills: <span th:text="${opp.requiredSkills}" style="color: #cbd5e1;">Java, SQL</span></div>
+                    <div>⏳ Deadline: <span th:text="${opp.deadline}" style="color: #f472b6;">2026-10-15</span></div>
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <button th:onclick="'applyOpportunity(' + ${opp.id} + ', this)'" class="btn btn-primary" style="flex: 1;">Apply Now</button>
+                    <button th:onclick="'toggleSaveOpportunity(' + ${opp.id} + ', this)'" class="btn btn-secondary">☆ Save</button>
+                    <a th:href="@{'/opportunity-details/' + ${opp.id}}" class="btn btn-secondary">Details</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+    <script>
+        const searchInput = document.getElementById('search-input');
+        const categorySelect = document.getElementById('category-select');
+        const modeSelect = document.getElementById('mode-select');
+        const cards = document.querySelectorAll('.opportunity-card');
+
+        function filterOpportunities() {
+            const query = searchInput.value.toLowerCase();
+            const cat = categorySelect.value;
+            const mode = modeSelect.value;
+
+            cards.forEach(card => {
+                const text = card.innerText.toLowerCase();
+                const cardCat = card.getAttribute('data-category');
+                const cardMode = card.getAttribute('data-mode');
+
+                const matchesSearch = text.includes(query);
+                const matchesCat = !cat || cardCat === cat;
+                const matchesMode = !mode || cardMode === mode;
+
+                if (matchesSearch && matchesCat && matchesMode) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        searchInput.addEventListener('input', filterOpportunities);
+        categorySelect.addEventListener('change', filterOpportunities);
+        modeSelect.addEventListener('change', filterOpportunities);
+    </script>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - QUEST</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/dashboard" class="nav-brand"><span>🚀 QUEST</span></a>
+        <ul class="nav-links">
+            <li><a href="/dashboard" class="nav-link">Dashboard</a></li>
+            <li><a href="/settings" class="nav-link active">Settings</a></li>
+        </ul>
+        <div class="user-badge">
+            <img th:src="${user.profilePhoto.startsWith('http') || user.profilePhoto.startsWith('/') ? user.profilePhoto : 'https://api.dicebear.com/7.x/bottts/svg?seed=' + user.fullName}" class="user-avatar" alt="Avatar">
+            <div>
+                <div style="font-size: 13px; font-weight: 700;" th:text="${user.fullName}">Alex</div>
+                <div style="font-size: 11px; color: #94a3b8;" th:text="${user.questProfileId}">QUEST-10482</div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <div class="section-header">
+            <h1 class="section-title">⚙️ Application Settings</h1>
+            <p class="section-subtitle">Account security, accessibility options, language preferences, and support resources.</p>
+        </div>
+
+        <div class="grid-2">
+            <!-- Security & Password -->
+            <div class="glass-card">
+                <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 16px;">🔐 Security & Password</h3>
+                <form id="password-form">
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" id="resetEmail" class="form-control" th:value="${user.email}" readonly style="opacity: 0.7;">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">New Password</label>
+                        <input type="password" id="newPassword" class="form-control" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Update Password</button>
+                </form>
+            </div>
+
+            <!-- Language & Accessibility -->
+            <div class="glass-card">
+                <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 16px;">🌐 Language & Accessibility</h3>
+                <div class="form-group">
+                    <label class="form-label">Application Language</label>
+                    <select class="form-control" disabled style="opacity: 0.8;">
+                        <option value="en" selected>English (Default)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">High Contrast Theme Mode</label>
+                    <select class="form-control">
+                        <option value="dark" selected>QUEST Dark Premium (Default)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- About QUEST -->
+        <div class="glass-card" style="margin-top: 24px; text-align: center;">
+            <h2 style="font-size: 22px; font-weight: 800; color: var(--accent-pink);">QUEST</h2>
+            <p style="font-size: 14px; color: #94a3b8; margin-top: 4px;">“Your Journey Toward a Goal”</p>
+            <p style="font-size: 13px; color: #64748b; margin-top: 12px; line-height: 1.5;">
+                QUEST is a production-style, gender-inclusive career growth platform empowering male and female users with equal access to skill learning, career analysis, resume analysis, mock interviews, opportunities, and personal health wellness.
+            </p>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+    <script>
+        document.getElementById('password-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('resetEmail').value;
+            const newPassword = document.getElementById('newPassword').value;
+
+            const res = await apiRequest('/api/auth/reset-password', 'POST', { email, newPassword });
+            if (res.success) {
+                alert('Password updated successfully!');
+            } else {
+                alert(res.message);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Opportunity Management - QUEST Admin</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/admin/dashboard" class="nav-brand"><span>🛡️ QUEST Admin</span></a>
+        <ul class="nav-links">
+            <li><a href="/admin/dashboard" class="nav-link">Dashboard</a></li>
+            <li><a href="/admin/users" class="nav-link">Users</a></li>
+            <li><a href="/admin/opportunities" class="nav-link active">Opportunities</a></li>
+            <li><a href="/admin/courses" class="nav-link">Courses</a></li>
+            <li><a href="/admin/applications" class="nav-link">Applications</a></li>
+            <li><a href="/admin/analytics" class="nav-link">Analytics</a></li>
+        </ul>
+        <a href="/login" class="btn btn-secondary" style="padding: 4px 12px; font-size: 12px;">Exit Admin</a>
+    </nav>
+
+    <div class="main-container">
+        <div class="section-header">
+            <h1 class="section-title">💼 Opportunity Management</h1>
+            <p class="section-subtitle">Create, update, and manage job postings, internships, competitions, and scholarships.</p>
+        </div>
+
+        <div class="grid-2" style="margin-bottom: 32px;">
+            <!-- Create Opportunity Form -->
+            <div class="glass-card">
+                <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 16px;">➕ Create New Opportunity</h3>
+                <form id="create-opp-form">
+                    <div class="form-group">
+                        <label class="form-label">Opportunity Title</label>
+                        <input type="text" id="title" class="form-control" required placeholder="Senior Java Backend Developer">
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div class="form-group">
+                            <label class="form-label">Organization</label>
+                            <input type="text" id="organization" class="form-control" required placeholder="Acme Tech">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Category</label>
+                            <select id="category" class="form-control" required>
+                                <option value="Job">Job</option>
+                                <option value="Internship">Internship</option>
+                                <option value="Competition">Competition</option>
+                                <option value="Scholarship">Scholarship</option>
+                                <option value="Recruitment Drive">Recruitment Drive</option>
+                                <option value="Training Program">Training Program</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div class="form-group">
+                            <label class="form-label">Work Mode</label>
+                            <select id="mode" class="form-control" required>
+                                <option value="Remote">Remote</option>
+                                <option value="Hybrid">Hybrid</option>
+                                <option value="On-site">On-site</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Location</label>
+                            <input type="text" id="location" class="form-control" required placeholder="Bangalore, India">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Required Skills</label>
+                        <input type="text" id="requiredSkills" class="form-control" required placeholder="Java, Spring Boot, MySQL">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <textarea id="description" class="form-control" rows="3" required placeholder="Full job description..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Application Deadline</label>
+                        <input type="date" id="deadline" class="form-control" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px;">Save Opportunity to Database</button>
+                </form>
+            </div>
+
+            <!-- Existing Opportunities List -->
+            <div class="glass-card">
+                <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 16px;">📜 Active Opportunities</h3>
+                <div id="opps-list" style="display: flex; flex-direction: column; gap: 12px; max-height: 550px; overflow-y: auto;">
+                    <!-- Rendered via JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+    <script>
+        async function loadAdminOpps() {
+            const res = await apiRequest('/api/opportunities');
+            if (res.success) {
+                const list = document.getElementById('opps-list');
+                list.innerHTML = '';
+                res.data.forEach(o => {
+                    list.innerHTML += `
+                        <div style="background: rgba(15, 23, 42, 0.7); padding: 12px; border-radius: 8px; border: 1px solid var(--border-card);">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                <div>
+                                    <strong style="font-size: 14px; color: #fff;">${o.title}</strong>
+                                    <span class="badge badge-pink">${o.category}</span>
+                                    <div style="font-size: 12px; color: #6366f1; font-weight: 700;">${o.organization}</div>
+                                </div>
+                                <button onclick="deleteOpp(${o.id})" class="btn btn-danger" style="padding: 4px 8px; font-size: 11px;">Delete</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        document.getElementById('create-opp-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const title = document.getElementById('title').value;
+            const organization = document.getElementById('organization').value;
+            const category = document.getElementById('category').value;
+            const mode = document.getElementById('mode').value;
+            const location = document.getElementById('location').value;
+            const requiredSkills = document.getElementById('requiredSkills').value;
+            const description = document.getElementById('description').value;
+            const deadline = document.getElementById('deadline').value;
+
+            const res = await apiRequest('/api/admin/opportunities', 'POST', {
+                title, organization, category, mode, location, requiredSkills, description, deadline, eligibility: 'Standard'
+            });
+
+            if (res.success) {
+                alert('Opportunity created in MySQL!');
+                loadAdminOpps();
+            }
+        });
+
+        async function deleteOpp(id) {
+            if (confirm('Delete opportunity?')) {
+                await apiRequest(`/api/admin/opportunities/${id}`, 'DELETE');
+                loadAdminOpps();
+            }
+        }
+
+        loadAdminOpps();
+    </script>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Mock Interview - QUEST</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/dashboard" class="nav-brand"><span>🚀 QUEST</span></a>
+        <ul class="nav-links">
+            <li><a href="/dashboard" class="nav-link">Dashboard</a></li>
+            <li><a href="/career" class="nav-link">Career & Skills</a></li>
+            <li><a href="/interview" class="nav-link active">AI Mock Interview</a></li>
+        </ul>
+        <div class="user-badge">
+            <img th:src="${user.profilePhoto.startsWith('http') || user.profilePhoto.startsWith('/') ? user.profilePhoto : 'https://api.dicebear.com/7.x/bottts/svg?seed=' + user.fullName}" class="user-avatar" alt="Avatar">
+            <div>
+                <div style="font-size: 13px; font-weight: 700;" th:text="${user.fullName}">Alex</div>
+                <div style="font-size: 11px; color: #94a3b8;" th:text="${user.questProfileId}">QUEST-10482</div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <div class="section-header">
+            <h1 class="section-title">🎤 Practice Before the Real Interview</h1>
+            <p class="section-subtitle">Simulate real Technical, HR, and STAR Behavioral interviews tailored to your target job role.</p>
+        </div>
+
+        <!-- Role Selector Stage -->
+        <div class="glass-card" id="start-stage" style="max-width: 600px; margin: 0 auto;">
+            <h2 style="font-size: 22px; font-weight: 800; margin-bottom: 16px;">Select Target Job Role</h2>
+            <div class="form-group">
+                <label class="form-label">Target Role</label>
+                <input type="text" id="targetRole" class="form-control" placeholder="e.g. Full-Stack Developer, Data Analyst, Cloud Engineer..." value="Software Engineer" required>
+            </div>
+            <button onclick="startSession()" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 16px;">🚀 Begin Interview Session</button>
+        </div>
+
+        <!-- Questions & Answers Stage -->
+        <div class="glass-card" id="qna-stage" style="display:none; max-width: 800px; margin: 0 auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border-card);">
+                <span class="badge badge-pink" id="role-badge">Software Engineer</span>
+                <span style="font-size: 13px; color: #94a3b8;">Technical & HR Screening</span>
+            </div>
+
+            <form id="answers-form">
+                <div id="questions-container" style="display: flex; flex-direction: column; gap: 20px;">
+                    <!-- Rendered via JS -->
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px; margin-top: 24px; font-size: 16px;">Submit Answers for AI Evaluation</button>
+            </form>
+        </div>
+
+        <!-- Results & Improvement Plan Stage -->
+        <div class="glass-card" id="result-stage" style="display:none; max-width: 800px; margin: 0 auto;">
+            <span class="badge badge-pink" style="margin-bottom: 10px;">Evaluation Completed</span>
+            <h2 style="font-size: 26px; font-weight: 800; margin-bottom: 8px;">Overall Performance Score: <span id="perf-score" style="color: var(--accent-pink);">85%</span></h2>
+
+            <div style="background: rgba(15, 23, 42, 0.8); padding: 20px; border-radius: 12px; border: 1px solid var(--border-card); margin: 20px 0;">
+                <h3 style="font-size: 18px; font-weight: 800; color: var(--accent-indigo); margin-bottom: 12px;">Create My Improvement Plan</h3>
+                <div id="improvement-plan-text" style="font-size: 14px; color: #cbd5e1; line-height: 1.6; white-space: pre-line;"></div>
+            </div>
+
+            <button onclick="location.reload()" class="btn btn-secondary">Start Another Interview</button>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+    <script>
+        let currentInterviewId = null;
+
+        async function startSession() {
+            const role = document.getElementById('targetRole').value;
+            const res = await apiRequest('/api/interview/start', 'POST', { targetRole: role });
+            if (res.success) {
+                currentInterviewId = res.interviewId;
+                document.getElementById('start-stage').style.display = 'none';
+                document.getElementById('qna-stage').style.display = 'block';
+                document.getElementById('role-badge').innerText = role;
+
+                const qContainer = document.getElementById('questions-container');
+                qContainer.innerHTML = '';
+                res.questions.forEach((q, idx) => {
+                    qContainer.innerHTML += `
+                        <div style="background: rgba(15, 23, 42, 0.7); padding: 16px; border-radius: 8px; border: 1px solid var(--border-card);">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span style="font-weight: 700; font-size: 14px; color: #fff;">Question ${idx + 1}</span>
+                                <span class="badge badge-indigo">${q.questionType}</span>
+                            </div>
+                            <p style="font-size: 14px; color: #cbd5e1; margin-bottom: 12px;">${q.questionText}</p>
+                            <textarea data-qid="${q.id}" class="form-control ans-input" rows="3" placeholder="Type your response here using STAR method principles..." required></textarea>
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        document.getElementById('answers-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const textareas = document.querySelectorAll('.ans-input');
+            const answers = {};
+            textareas.forEach(ta => {
+                answers[ta.getAttribute('data-qid')] = ta.value;
+            });
+
+            const res = await apiRequest(`/api/interview/${currentInterviewId}/submit`, 'POST', { answers });
+            if (res.success) {
+                document.getElementById('qna-stage').style.display = 'none';
+                document.getElementById('result-stage').style.display = 'block';
+                document.getElementById('perf-score').innerText = res.data.overallScore + '%';
+                document.getElementById('improvement-plan-text').innerText = res.data.improvementPlan;
+            }
+        });
+    </script>
+</body>
+</html>

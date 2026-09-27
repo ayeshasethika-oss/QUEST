@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Applications - QUEST</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/dashboard" class="nav-brand"><span>🚀 QUEST</span></a>
+        <ul class="nav-links">
+            <li><a href="/dashboard" class="nav-link">Dashboard</a></li>
+            <li><a href="/opportunities" class="nav-link">Opportunities</a></li>
+            <li><a href="/applications" class="nav-link active">My Applications</a></li>
+        </ul>
+        <div class="user-badge">
+            <img th:src="${user.profilePhoto.startsWith('http') || user.profilePhoto.startsWith('/') ? user.profilePhoto : 'https://api.dicebear.com/7.x/bottts/svg?seed=' + user.fullName}" class="user-avatar" alt="Avatar">
+            <div>
+                <div style="font-size: 13px; font-weight: 700;" th:text="${user.fullName}">Alex</div>
+                <div style="font-size: 11px; color: #94a3b8;" th:text="${user.questProfileId}">QUEST-10482</div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <div class="section-header">
+            <h1 class="section-title">📋 Application Tracker</h1>
+            <p class="section-subtitle">Track real-time recruitment status for your saved and submitted job applications.</p>
+        </div>
+
+        <div th:if="${#lists.isEmpty(applications)}" class="glass-card" style="text-align: center; padding: 40px;">
+            <p style="color: #94a3b8; font-size: 15px;">You have not submitted any applications yet.</p>
+            <a href="/opportunities" class="btn btn-primary" style="margin-top: 16px;">Browse & Apply Opportunities</a>
+        </div>
+
+        <div class="glass-card" th:unless="${#lists.isEmpty(applications)}">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 14px;">
+                <thead>
+                    <tr style="border-bottom: 1px solid var(--border-card); color: #64748b;">
+                        <th style="padding: 12px;">Opportunity</th>
+                        <th style="padding: 12px;">Organization</th>
+                        <th style="padding: 12px;">Applied Date</th>
+                        <th style="padding: 12px;">Deadline</th>
+                        <th style="padding: 12px;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="app : ${applications}" style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <td style="padding: 16px; font-weight: 700;" th:text="${app.opportunityTitle}">Title</td>
+                        <td style="padding: 16px; color: #94a3b8;" th:text="${app.organization}">Organization</td>
+                        <td style="padding: 16px; color: #94a3b8;" th:text="${app.applicationDate}">Date</td>
+                        <td style="padding: 16px; color: #f472b6;" th:text="${app.deadline}">Deadline</td>
+                        <td style="padding: 16px;">
+                            <span class="badge badge-pink" th:text="${app.status}">Applied</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+</body>
+</html>

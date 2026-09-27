@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Certificates - QUEST</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/dashboard" class="nav-brand"><span>🚀 QUEST</span></a>
+        <ul class="nav-links">
+            <li><a href="/dashboard" class="nav-link">Dashboard</a></li>
+            <li><a href="/courses" class="nav-link">Courses</a></li>
+            <li><a href="/certificates" class="nav-link active">My Certificates</a></li>
+        </ul>
+        <div class="user-badge">
+            <img th:src="${user.profilePhoto.startsWith('http') || user.profilePhoto.startsWith('/') ? user.profilePhoto : 'https://api.dicebear.com/7.x/bottts/svg?seed=' + user.fullName}" class="user-avatar" alt="Avatar">
+            <div>
+                <div style="font-size: 13px; font-weight: 700;" th:text="${user.fullName}">Alex</div>
+                <div style="font-size: 11px; color: #94a3b8;" th:text="${user.questProfileId}">QUEST-10482</div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <div class="section-header">
+            <h1 class="section-title">🏆 My QUEST Course Completion Certificates</h1>
+            <p class="section-subtitle">Official verifiable certificates earned through completed courses on QUEST.</p>
+        </div>
+
+        <div th:if="${#lists.isEmpty(certificates)}" class="glass-card" style="text-align: center; padding: 40px;">
+            <p style="color: #94a3b8; font-size: 15px;">No certificates earned yet. Complete courses & pass assessments to earn your certificates!</p>
+            <a href="/courses" class="btn btn-primary" style="margin-top: 16px;">Explore Courses</a>
+        </div>
+
+        <div class="grid-2" th:unless="${#lists.isEmpty(certificates)}">
+            <div class="glass-card" th:each="cert : ${certificates}" style="border-left: 4px solid var(--accent-pink);">
+                <span class="badge badge-pink" th:text="${cert.certificateId}">CERT-88412</span>
+                <h3 style="font-size: 20px; font-weight: 800; margin-top: 8px;" th:text="${cert.courseTitle}">Course Name</h3>
+                <p style="font-size: 13px; color: #94a3b8; margin-top: 4px;">Recipient: <strong style="color: #fff;" th:text="${cert.userName}">Name</strong> (<span th:text="${cert.questProfileId}">QUEST-10482</span>)</p>
+                <p style="font-size: 13px; color: #94a3b8; margin-top: 2px;">Issued Date: <span th:text="${cert.issueDate}">2026-09-19</span></p>
+
+                <div style="margin-top: 20px; display: flex; gap: 12px;">
+                    <a th:href="@{'/api/certificates/' + ${cert.id} + '/download'}" class="btn btn-primary" style="flex: 1;">📥 Download PDF Certificate</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+</body>
+</html>

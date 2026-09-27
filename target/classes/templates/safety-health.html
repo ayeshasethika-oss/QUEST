@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safety & Health - QUEST</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/dashboard" class="nav-brand"><span>🚀 QUEST</span></a>
+        <ul class="nav-links">
+            <li><a href="/dashboard" class="nav-link">Dashboard</a></li>
+            <li><a href="/career" class="nav-link">Career & Skills</a></li>
+            <li><a href="/opportunities" class="nav-link">Opportunities</a></li>
+            <li><a href="/safety-health" class="nav-link active">Safety & Health</a></li>
+            <li th:if="${user.gender == 'Female'}"><a href="/menstrual-health" class="nav-link" style="color: #f472b6;">🌸 Menstrual Health</a></li>
+            <li><a href="/notifications" class="nav-link">🔔 Notifications</a></li>
+        </ul>
+        <div class="user-badge">
+            <img th:src="${user.profilePhoto.startsWith('http') || user.profilePhoto.startsWith('/') ? user.profilePhoto : 'https://api.dicebear.com/7.x/bottts/svg?seed=' + user.fullName}" class="user-avatar" alt="Avatar">
+            <div>
+                <div style="font-size: 13px; font-weight: 700;" th:text="${user.fullName}">Alex</div>
+                <div style="font-size: 11px; color: #94a3b8;" th:text="${user.questProfileId}">QUEST-10482</div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <div class="section-header">
+            <h1 class="section-title">🛡️ Safety & Health Hub</h1>
+            <p class="section-subtitle">Manage personal trusted safety contacts, location sharing tips, and non-diagnostic wellness guidance.</p>
+        </div>
+
+        <div class="grid-2" style="margin-bottom: 32px;">
+            <!-- Trusted Contacts Module -->
+            <div class="glass-card">
+                <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 16px;">👥 My Trusted Contacts</h2>
+                <form id="contact-form" style="margin-bottom: 20px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <input type="text" id="contactName" class="form-control" placeholder="Contact Name" required>
+                        <input type="text" id="contactRel" class="form-control" placeholder="Relationship (Parent/Friend)" required>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+                        <input type="tel" id="contactPhone" class="form-control" placeholder="Phone Number" required>
+                        <input type="email" id="contactEmail" class="form-control" placeholder="Email (Optional)">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 12px;">+ Add Trusted Contact</button>
+                </form>
+
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <div th:each="tc : ${trustedContacts}" style="background: rgba(15, 23, 42, 0.7); padding: 12px; border-radius: 8px; border: 1px solid var(--border-card); display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong style="font-size: 14px;" th:text="${tc.name}">Name</strong>
+                            <span class="badge badge-indigo" th:text="${tc.relationship}">Rel</span>
+                            <div style="font-size: 12px; color: #94a3b8;" th:text="${tc.phone}">Phone</div>
+                        </div>
+                        <button th:onclick="'deleteContact(' + ${tc.id} + ')'" class="btn btn-danger" style="padding: 4px 8px; font-size: 11px;">Remove</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Emergency Numbers & Safe Routes (NO SOS) -->
+            <div class="glass-card">
+                <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 16px;">🚨 Emergency Services & Safe Routes</h2>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
+                    <div th:each="em : ${safety.emergencyContacts}" style="background: rgba(219, 39, 119, 0.1); border: 1px solid rgba(219, 39, 119, 0.2); padding: 12px; border-radius: 8px;">
+                        <div style="font-size: 11px; color: #f472b6; font-weight: 700;" th:text="${em.service}">Service</div>
+                        <div style="font-size: 20px; font-weight: 800; color: #fff;" th:text="${em.number}">112</div>
+                    </div>
+                </div>
+
+                <div style="background: rgba(15, 23, 42, 0.7); padding: 14px; border-radius: 8px; border: 1px solid var(--border-card);">
+                    <h4 style="font-size: 14px; font-weight: 700; color: var(--accent-indigo); margin-bottom: 6px;">📍 Location Sharing & Travel Safety</h4>
+                    <p style="font-size: 13px; color: #cbd5e1; line-height: 1.4;" th:text="${safety.safeRoutesInfo}"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- General Health & Wellness Guidelines (Both Genders) -->
+        <div class="glass-card">
+            <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 20px;">💧 General Non-Diagnostic Health & Wellness Guidance</h2>
+            <div class="grid-3">
+                <div style="background: rgba(15, 23, 42, 0.6); padding: 16px; border-radius: 8px; border: 1px solid var(--border-card);">
+                    <h4 style="font-size: 15px; font-weight: 700; color: #38bdf8; margin-bottom: 6px;">💧 Hydration Guidance</h4>
+                    <p style="font-size: 13px; color: #cbd5e1; line-height: 1.4;" th:text="${wellness.hydrationTip}"></p>
+                </div>
+
+                <div style="background: rgba(15, 23, 42, 0.6); padding: 16px; border-radius: 8px; border: 1px solid var(--border-card);">
+                    <h4 style="font-size: 15px; font-weight: 700; color: #a78bfa; margin-bottom: 6px;">🌙 Sleep Routine</h4>
+                    <p style="font-size: 13px; color: #cbd5e1; line-height: 1.4;" th:text="${wellness.sleepGuidance}"></p>
+                </div>
+
+                <div style="background: rgba(15, 23, 42, 0.6); padding: 16px; border-radius: 8px; border: 1px solid var(--border-card);">
+                    <h4 style="font-size: 15px; font-weight: 700; color: #f472b6; margin-bottom: 6px;">🧘 Screen & Posture Breaks</h4>
+                    <p style="font-size: 13px; color: #cbd5e1; line-height: 1.4;" th:text="${wellness.screenTimeReminder}"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+    <script>
+        document.getElementById('contact-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('contactName').value;
+            const relationship = document.getElementById('contactRel').value;
+            const phone = document.getElementById('contactPhone').value;
+            const email = document.getElementById('contactEmail').value;
+
+            const res = await apiRequest('/api/safety/trusted-contacts', 'POST', { name, relationship, phone, email });
+            if (res.success) {
+                location.reload();
+            }
+        });
+
+        async function deleteContact(id) {
+            if (confirm('Remove trusted contact?')) {
+                await apiRequest(`/api/safety/trusted-contacts/${id}`, 'DELETE');
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>

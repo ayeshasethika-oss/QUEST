@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications - QUEST</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/dashboard" class="nav-brand"><span>🚀 QUEST</span></a>
+        <ul class="nav-links">
+            <li><a href="/dashboard" class="nav-link">Dashboard</a></li>
+            <li><a href="/notifications" class="nav-link active">🔔 Notifications</a></li>
+            <li><a href="/settings" class="nav-link">Settings</a></li>
+        </ul>
+        <div class="user-badge">
+            <img th:src="${user.profilePhoto.startsWith('http') || user.profilePhoto.startsWith('/') ? user.profilePhoto : 'https://api.dicebear.com/7.x/bottts/svg?seed=' + user.fullName}" class="user-avatar" alt="Avatar">
+            <div>
+                <div style="font-size: 13px; font-weight: 700;" th:text="${user.fullName}">Alex</div>
+                <div style="font-size: 11px; color: #94a3b8;" th:text="${user.questProfileId}">QUEST-10482</div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <div class="section-header">
+            <h1 class="section-title">🔔 Notifications & Reminders</h1>
+            <p class="section-subtitle">Stay updated on opportunity alerts, learning milestones, and personalized health reminders.</p>
+        </div>
+
+        <div class="grid-2">
+            <!-- Notifications List -->
+            <div class="glass-card">
+                <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 16px;">Inbox</h3>
+
+                <div th:if="${#lists.isEmpty(notifications)}" style="text-align: center; color: #94a3b8; padding: 20px;">
+                    No new notifications in your inbox.
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <div th:each="n : ${notifications}" th:onclick="'markNotificationRead(' + ${n.id} + ', this)'" style="background: rgba(15, 23, 42, 0.7); padding: 14px; border-radius: 8px; border: 1px solid var(--border-card); cursor: pointer; transition: opacity 0.2s;" th:classappend="${!n.isRead ? 'unread' : ''}">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                            <strong style="font-size: 14px; color: #fff;" th:text="${n.title}">Title</strong>
+                            <span class="badge badge-pink" th:text="${n.category}">Category</span>
+                        </div>
+                        <p style="font-size: 13px; color: #cbd5e1; line-height: 1.4;" th:text="${n.message}">Notification message body...</p>
+                        <span style="font-size: 11px; color: #64748b; margin-top: 6px; display: block;" th:text="${n.createdAt}">Date</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preferences Panel -->
+            <div class="glass-card">
+                <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 16px;">⚙️ Notification Preferences</h3>
+                <form id="pref-form">
+                    <div class="form-group" style="background: rgba(255, 255, 255, 0.03); padding: 12px; border-radius: 8px;">
+                        <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; font-size: 14px; font-weight: 600;">
+                            <span>🎯 Opportunity & Job Alerts</span>
+                            <input type="checkbox" id="oppAlerts" th:checked="${preferences.opportunityAlerts}" style="width: 18px; height: 18px;">
+                        </label>
+                    </div>
+
+                    <div class="form-group" style="background: rgba(255, 255, 255, 0.03); padding: 12px; border-radius: 8px;">
+                        <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; font-size: 14px; font-weight: 600;">
+                            <span>📚 Course & Learning Reminders</span>
+                            <input type="checkbox" id="learnReminders" th:checked="${preferences.learningReminders}" style="width: 18px; height: 18px;">
+                        </label>
+                    </div>
+
+                    <div class="form-group" style="background: rgba(255, 255, 255, 0.03); padding: 12px; border-radius: 8px;">
+                        <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; font-size: 14px; font-weight: 600;">
+                            <span>💧 General Health & Hydration Reminders</span>
+                            <input type="checkbox" id="healthReminders" th:checked="${preferences.healthReminders}" style="width: 18px; height: 18px;">
+                        </label>
+                    </div>
+
+                    <!-- Female Only Menstrual Preference (Strict Male Visibility Rule) -->
+                    <div th:if="${user.gender == 'Female'}" class="form-group" style="background: rgba(219, 39, 119, 0.1); border: 1px solid rgba(219, 39, 119, 0.2); padding: 12px; border-radius: 8px;">
+                        <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; font-size: 14px; font-weight: 600; color: #f472b6;">
+                            <span>🌸 Menstrual & Period Hygiene Reminders</span>
+                            <input type="checkbox" id="menstrualReminders" th:checked="${preferences.menstrualReminders}" style="width: 18px; height: 18px;">
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; margin-top: 10px;">Save Notification Settings</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+    <script>
+        document.getElementById('pref-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const opportunityAlerts = document.getElementById('oppAlerts').checked;
+            const learningReminders = document.getElementById('learnReminders').checked;
+            const healthReminders = document.getElementById('healthReminders').checked;
+            const menstrualElem = document.getElementById('menstrualReminders');
+            const menstrualReminders = menstrualElem ? menstrualElem.checked : false;
+
+            const res = await apiRequest('/api/notifications/preferences', 'PUT', {
+                opportunityAlerts, learningReminders, healthReminders, menstrualReminders
+            });
+
+            if (res.success) {
+                alert('Preferences saved in MySQL!');
+            }
+        });
+    </script>
+</body>
+</html>

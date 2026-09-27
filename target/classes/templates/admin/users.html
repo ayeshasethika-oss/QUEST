@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - QUEST Admin</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/admin/dashboard" class="nav-brand"><span>🛡️ QUEST Admin</span></a>
+        <ul class="nav-links">
+            <li><a href="/admin/dashboard" class="nav-link">Dashboard</a></li>
+            <li><a href="/admin/users" class="nav-link active">Users</a></li>
+            <li><a href="/admin/opportunities" class="nav-link">Opportunities</a></li>
+            <li><a href="/admin/courses" class="nav-link">Courses</a></li>
+            <li><a href="/admin/applications" class="nav-link">Applications</a></li>
+            <li><a href="/admin/analytics" class="nav-link">Analytics</a></li>
+        </ul>
+        <a href="/login" class="btn btn-secondary" style="padding: 4px 12px; font-size: 12px;">Exit Admin</a>
+    </nav>
+
+    <div class="main-container">
+        <div class="section-header">
+            <h1 class="section-title">👥 User Management Portal</h1>
+            <p class="section-subtitle">View registered platform users across male and female user bases.</p>
+        </div>
+
+        <div class="glass-card">
+            <table style="width: 100%; border-collapse: collapse; font-size: 13px; text-align: left;">
+                <thead>
+                    <tr style="border-bottom: 1px solid var(--border-card); color: #64748b;">
+                        <th style="padding: 10px;">Quest ID</th>
+                        <th style="padding: 10px;">Full Name</th>
+                        <th style="padding: 10px;">Gender</th>
+                        <th style="padding: 10px;">Email</th>
+                        <th style="padding: 10px;">Phone</th>
+                        <th style="padding: 10px;">Registered</th>
+                    </tr>
+                </thead>
+                <tbody id="users-tbody">
+                    <!-- Rendered via JS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+    <script>
+        async function loadUsers() {
+            const res = await apiRequest('/api/admin/users');
+            if (res.success) {
+                const tbody = document.getElementById('users-tbody');
+                tbody.innerHTML = '';
+                res.data.forEach(u => {
+                    tbody.innerHTML += `
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                            <td style="padding: 12px; font-weight: 700; color: #6366f1;">${u.questProfileId}</td>
+                            <td style="padding: 12px; font-weight: 700; color: #fff;">${u.fullName}</td>
+                            <td style="padding: 12px;"><span class="badge ${u.gender === 'Female' ? 'badge-pink' : 'badge-indigo'}">${u.gender}</span></td>
+                            <td style="padding: 12px; color: #cbd5e1;">${u.email}</td>
+                            <td style="padding: 12px; color: #cbd5e1;">${u.phone || 'N/A'}</td>
+                            <td style="padding: 12px; color: #94a3b8;">${new Date(u.createdAt).toLocaleDateString()}</td>
+                        </tr>
+                    `;
+                });
+            }
+        }
+        loadUsers();
+    </script>
+</body>
+</html>

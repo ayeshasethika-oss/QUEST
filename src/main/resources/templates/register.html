@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account - QUEST | Your Journey Toward a Goal</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40px 20px;">
+        <div class="glass-card" style="width: 100%; max-width: 520px;">
+            <div style="text-align: center; margin-bottom: 24px;">
+                <h1 style="font-size: 28px; font-weight: 900; background: linear-gradient(135deg, #db2777, #6366f1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">🚀 Join QUEST</h1>
+                <p style="color: #94a3b8; font-size: 14px;">Your Journey Toward a Goal</p>
+            </div>
+
+            <div id="alert-box" style="display:none; padding: 10px; margin-bottom: 16px; border-radius: 8px; font-size: 13px; text-align: center; background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3);"></div>
+
+            <form id="register-form">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" id="fullName" class="form-control" placeholder="Alex Morgan" required>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group">
+                        <label class="form-label">Age</label>
+                        <input type="number" id="age" class="form-control" placeholder="24" min="15" max="90" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Gender</label>
+                        <select id="gender" class="form-control" required>
+                            <option value="">Select Gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Phone Number</label>
+                    <input type="tel" id="phone" class="form-control" placeholder="+91 9876543210" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" id="email" class="form-control" placeholder="alex@example.com" required>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" id="password" class="form-control" placeholder="••••••••" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Confirm Password</label>
+                        <input type="password" id="confirmPassword" class="form-control" placeholder="••••••••" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Profile Photo Preference</label>
+                    <select id="profilePhoto" class="form-control">
+                        <option value="default_avatar.png">Use Default Avatar</option>
+                        <option value="avatar_male.png">Male Avatar</option>
+                        <option value="avatar_female.png">Female Avatar</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; margin-top: 10px;">Register & Continue</button>
+            </form>
+
+            <div style="margin-top: 20px; text-align: center; font-size: 13px; color: #94a3b8;">
+                Already have an account? <a href="/login" style="color: #db2777; font-weight: 700; text-decoration: none;">Login</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+    <script>
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fullName = document.getElementById('fullName').value;
+            const age = document.getElementById('age').value;
+            const gender = document.getElementById('gender').value;
+            const phone = document.getElementById('phone').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const profilePhoto = document.getElementById('profilePhoto').value;
+
+            if (password !== confirmPassword) {
+                showAlert('Passwords do not match!', 'danger');
+                return;
+            }
+
+            const res = await apiRequest('/api/auth/register', 'POST', {
+                fullName, age, gender, phone, email, password, profilePhoto
+            });
+
+            if (res.success) {
+                window.location.href = '/otp';
+            } else {
+                showAlert(res.message, 'danger');
+            }
+        });
+    </script>
+</body>
+</html>
